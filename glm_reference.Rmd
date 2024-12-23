@@ -1,0 +1,1121 @@
+---
+title: "在R Markdown文档中使用中文"
+author:
+  - 谢益辉
+  - 邱怡轩
+  - 于淼
+documentclass: ctexart
+keywords:
+  - 中文
+  - R Markdown
+output:
+  rticles::ctex:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+```
+
+```{r}
+library(msm)
+library(nloptr)
+library(MASS)
+library(xtable)
+```
+
+
+
+
+# external
+
+
+```{r}
+#betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),NN = 50000,m=1000)
+betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),NN = 50000,m=1000)
+#1-2 min ok
+```
+
+```{r}
+ceshi<-matrix(0,nrow=100,ncol=4)
+x<-rnorm(1000)
+y<-rbinom(n=1000,size=1,p=1/(1+exp(-1-x)))
+# res_glmnorm<-glm(y~x,family=binomial) #$coefficients
+# 
+# var_bx<-as.vector(vcov(res_glmnorm))
+# ceshi[1,]<-var_bx
+# matrix(ceshi[1,],nrow=2)-var_bx
+```
+
+
+
+
+```{r}
+library(msm)
+library(nloptr)
+library(MASS)
+library(xtable)
+setwd("d:/tbzs/tb/groupmeeting/paper1/reference sample/")
+source(file = "r_file/external_functions.r")
+source(file="r_file/other_functions.r")
+source(file="r_file/main_simulation.r")
+source(file="r_file/main_simulation2.r")
+source(file = "r_file/assesment.R")
+
+set.seed(54)
+    set.seed(54)  # terrible results?? bad seed??  54??
+  betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),NN =50000,m=1)
+  set.seed(55)
+  
+final_try3<-simu_glm(betaxin_total=betaxin_total,type_ini = 1,source_beta =1.2*c(-2.4,-0.5,0.4,0.3,0.65,0.1)-c(0.5,0,0,0,0,0),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 50000,vartype = 0 ,nr=2000,nr_type =0)
+```
+
+# source information
+
+
+
+
+
+
+```{r}
+# btx_r<-c(-2.294076 ,-0.4828877 ,0.3856958, 0.3250329, 0.6689689)
+# seed_h=1000
+# cole<-rep(0,seed_h)
+# for(i in 1:seed_h){
+#   set.seed(i)
+#   betaxin_total1=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),NN = 50000,m=1)
+# 
+#   cole[i]<-max(abs(betaxin_total1[[1]]-btx_r))
+#   }
+  
+# s1-s3  seed for 50000 and compare it with seed 123 for 500000: seed 54 ok0.004987893
+set.seed(123)  # terrible results?? bad seed??
+  psitrue=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),NN =500000,m=1)[[1]]
+  mj=200
+  abs_dif=rep(0,mj)
+  for (j in 1:mj){
+    set.seed(j)
+    abs_dif[j]=max(abs(psitrue-external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),NN = 50000,m=1)[[1]])/c(0.075,0.014,0.013,0.012,0.013))
+    }
+
+min(abs_dif)
+
+# s4-s6  seed for 50000 and compare it with seed 111 for 500000: seed 239? 0.0040 ok
+set.seed(111)  # terrible results?? bad seed??
+  psitrue=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),NN =500000,m=1)[[1]]
+  mj=200
+  abs_dif=rep(0,mj)
+  for (j in (mj+1):(2*mj)){
+    set.seed(j)
+    abs_dif[j-mj]=max(abs(psitrue-external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),NN = 50000,m=1)[[1]]))
+    }
+
+min(abs_dif)
+
+
+
+ set.seed(54)#165
+betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),NN = 50000,m=1)
+
+final_try<-simu_glm(type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),ns=2000,nt = 50000,vartype = 0,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F ,nr=2000,nr_type =0)
+
+  targetbeta=c(-2.4,-0.5,0.4,0.3,0.65,0.1)
+assesment_r1<-assesment(result = final_try,targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x},include.rownames = F,include.colnames = F)
+ 
+ 
+ 
+ # s4-6
+ set.seed(239)#165
+betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),NN = 50000,m=1)
+
+final_try<-simu_glm(type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),ns=2000,nt = 50000,vartype = 0,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F ,nr=2000,nr_type =0)
+
+  targetbeta=c(-2.4,-0.5,0.4,0.3,0.65,0.5)
+assesment_r1<-assesment(result = final_try,targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x},include.rownames = F,include.colnames = F)
+```
+
+6:02:45-6:07-6:12
+
+### 24-3-8-random
+
+```{r}
+
+set.seed(123)
+  betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),NN = 50000,m=1000)
+final_try1<-simu_glm(type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = T,nt = 50000,vartype = 3 )
+
+
+final_try2<-simu_glm(type_ini = 1,source_beta =c(1.2*c(-2.4,-0.5,0.4,0.3,0.65)+c(0.5,0,0,0,0),0.1),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = T,nt = 50000,vartype = 3 )
+
+
+final_try3<-simu_glm(type_ini = 1,source_beta =1.2*c(-2.4,-0.5,0.4,0.3,0.65,0.1)-c(0.5,0,0,0,0,0),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = T,nt = 50000,vartype = 3 )
+
+set.seed(123)
+  betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),NN = 50000,m=1000)
+  
+final_try4<-simu_glm(type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = T,nt = 50000,vartype = 3 )
+
+
+final_try5<-simu_glm(type_ini = 1,source_beta =c(1.2*c(-2.4,-0.5,0.4,0.3,0.65)+c(0.5,0,0,0,0),0.5),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = T,nt = 50000,vartype = 3 )
+
+
+final_try6<-simu_glm(type_ini = 1,source_beta =1.2*c(-2.4,-0.5,0.4,0.3,0.65,0.5)-c(0.5,0,0,0,0,0),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = T,nt = 50000,vartype = 3 )
+
+```
+
+19:45
+
+
+
+
+
+
+```{r}
+
+
+
+# colnames(total_comp)<-c("true","cml1","sd","my","sd","ls","sd")
+# 
+# rownames(total_comp)<-c("$\\beta_{0T}$","$\\beta_{x1T}$","$\\beta_{x2T}$","$\\beta_{x3T}$","$\\beta_{x4T}$","$\\beta_{z1T}$")
+# print(xtable(total_comp,digits = 3),type="latex",sanitize.text.function = function(x){x})
+
+
+assesment<-function(result,targetbeta){
+  
+total_comp<-cbind(targetbeta,
+  t(t(colMeans(result$beta_mle[,1:6]))-targetbeta),
+  colMeans(result$asyd_mle[,1:6]),
+  sqrt(diag(var(result$beta_mle[,1:6]))),
+  colMeans(abs(t(t(result$beta_mle[,1:6])-targetbeta))<qnorm(0.975)*result$asyd_mle[,1:6]),
+  t(t(colMeans(result$beta_cmle[,1:6]))-targetbeta),
+  colMeans(result$asyd_cml[,1:6]),
+  sqrt(diag(var(result$beta_cmle[,1:6]))),
+  colMeans(abs(t(t(result$beta_cmle[,1:6])-targetbeta))<qnorm(0.975)*result$asyd_cml[,1:6]),
+
+  t(t(colMeans(result$beta_my[,1:6]))-targetbeta),
+  colMeans(result$asyd_my[,1:6]),
+  sqrt(diag(var(result$beta_my[,1:6]))),
+  colMeans(abs(t(t(result$beta_my[,1:6])-targetbeta))<qnorm(0.975)*result$asyd_my)
+)
+ rownames(total_comp)<-c("$\\beta_{0T}$","$\\beta_{x1T}$","$\\beta_{x2T}$","$\\beta_{x3T}$","$\\beta_{x4T}$","$\\beta_{z1T}$")
+
+return(total_comp)
+
+}
+
+  targetbeta=c(-2.4,-0.5,0.4,0.3,0.65,0.5)
+assesment_r1<-assesment(result = final_try6,targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x})
+```
+
+```{r}
+
+assesment_r2<-assesment(result = final_try2,targetbeta = targetbeta)
+ print(xtable(assesment_r2,digits = 3),type="latex",sanitize.text.function = function(x){x})
+
+```
+
+
+```{r}
+
+assesment_r3<-assesment(result = final_try3,targetbeta = targetbeta)
+ print(xtable(assesment_r3,digits = 3),type="latex",sanitize.text.function = function(x){x})
+
+```
+
+
+
+
+```{r}
+
+colMeans(final_try$beta_mle)[7:12]
+ colMeans(final_try$asyd_mle)[7:12]
+ sqrt(diag(var(final_try$beta_mle)))[7:12]
+
+colMeans(final_try$beta_mle)[1:6]
+ colMeans(final_try$asyd_mle)[1:6]
+ sqrt(diag(var(final_try$beta_mle)))[1:6]
+
+colMeans(final_try$beta_cmle)
+(colMeans(final_try$asyd_cml)) # similar to mle but not the se of cmle?
+sqrt(diag(var(final_try$beta_cmle)))
+
+colMeans(final_try$beta_my)
+colMeans(final_try$asyd_my)
+sqrt(diag(var(final_try$beta_my)))
+```
+
+2600 same beta
+
+[1] -2.00233518  0.10098004 -0.09968302  0.10104889  0.10140183  0.59962050
+[1] 0.043860744 0.017604049 0.021175435 0.020663534 0.030748554 0.009815665
+[1] 0.043800312 0.018072342 0.021009401 0.020447066 0.031682563 0.009766505
+[1] -2.4080786 -0.5027298  0.3957358  0.2969807  0.6586634  0.0994781
+[1] 0.26595185 0.10339342 0.13352436 0.12060113 0.15583721 0.06216056
+[1] 0.26953430 0.10285660 0.13600628 0.12114588 0.15593440 0.06296352
+[1] -2.41222288 -0.50551867  0.39977492  0.30011084  0.66567706  0.09937465
+[1] 0.21180541 0.07468745 0.12535813 0.11190523 0.14216829 0.06204365
+[1] 0.21458911 0.07736035 0.13001753 0.11545821 0.14443153 0.06285676
+[1] -2.3974258 -0.5011629  0.3954350  0.2956931  0.6394365  0.0994781
+[1] 0.07542859 0.01372910 0.01348219 0.01257402 0.01307260 0.06216056
+[1] 0.17146901 0.07812628 0.10229227 0.12140909 0.13105255 0.06296352
+
+2600 different beta
+
+[1] -2.00009912  0.10005246 -0.09964659  0.09952412  0.10104401  0.59924935
+[1] 0.043831721 0.017592876 0.021165006 0.020639849 0.030723743 0.009807455
+[1] 0.043850140 0.017477782 0.021121564 0.020700233 0.030704885 0.009532451
+[1] -3.4100350 -0.6064389  0.4895453  0.3535769  0.7748828  0.1171334
+[1] 0.39695748 0.15167254 0.20196019 0.17841463 0.21959931 0.09156346
+[1] 0.39370230 0.15138950 0.20195268 0.17986063 0.22030066 0.08912116
+[1] -1.92710121 -0.70686862  0.16353449 -0.07691968  0.58954142  0.11051175
+[1] 0.15219763 0.04505274 0.10097024 0.12002222 0.11891586 0.05514034
+[1] 0.25981842 0.09977454 0.18124606 0.16095880 0.20350814 0.08504217
+[1] -2.4212892 -0.5057030  0.3998158  0.2925936  0.6362740  0.1171334
+[1] 0.11274317 0.02053317 0.02011131 0.01789178 0.01811705 0.09156346
+[1] 0.18724634 0.08093043 0.10360940 0.12222935 0.13112530 0.08912116
+
+
+
+
+
+
+
+### 24-3-27-50ratio
+
+```{r}
+Nt=50000
+Ns=1000
+nrepeat=1000
+set.seed(123)
+betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),NN = Nt,m=nrepeat)
+final_try1<-simu_glm(type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),ns=Ns,N_r =nrepeat,al_type ="NLOPT_LD_MMA",random_target = F,nt = Nt,vartype = 0 )
+
+
+final_try2<-simu_glm(type_ini = 1,source_beta =c(1.2*c(-2.4,-0.5,0.4,0.3,0.65)+c(0.5,0,0,0,0),0.1),ns=Ns,N_r =nrepeat,al_type ="NLOPT_LD_MMA",random_target = F,nt = Nt,vartype = 0 )
+
+
+final_try3<-simu_glm(type_ini = 1,source_beta =1.2*c(-2.4,-0.5,0.4,0.3,0.65,0.1)-c(0.5,0,0,0,0,0),ns=Ns,N_r =nrepeat,al_type ="NLOPT_LD_MMA",random_target = F,nt = Nt,vartype = 0 )
+
+set.seed(123)
+  betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),NN = Nt,m=nrepeat)
+  
+final_try4<-simu_glm(type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),ns=Ns,N_r =nrepeat,al_type ="NLOPT_LD_MMA",random_target = F,nt = Nt,vartype = 0 )
+
+
+final_try5<-simu_glm(type_ini = 1,source_beta =c(1.2*c(-2.4,-0.5,0.4,0.3,0.65)+c(0.5,0,0,0,0),0.5),ns=Ns,N_r =nrepeat,al_type ="NLOPT_LD_MMA",random_target = F,nt = Nt,vartype = 0 )
+
+
+final_try6<-simu_glm(type_ini = 1,source_beta =1.2*c(-2.4,-0.5,0.4,0.3,0.65,0.5)-c(0.5,0,0,0,0,0),ns=Ns,N_r =nrepeat,al_type ="NLOPT_LD_MMA",random_target = F,nt = Nt,vartype = 0 )
+
+```
+
+```{r}
+
+  targetbeta=c(-2.4,-0.5,0.4,0.3,0.65,0.1)
+assesment_r1<-assesment(result = final_try1,targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x})
+ 
+   targetbeta=c(-2.4,-0.5,0.4,0.3,0.65,0.5)
+assesment_r1<-assesment(result = final_try4,targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x})
+```
+
+
+
+### 24-3-29-fixed
+
+
+```{r}
+Nt=500000
+Ns=2000
+nrepeat=1000
+set.seed(123)
+betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),NN = Nt,m=2)
+final_try1<-simu_glm(type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),ns=Ns,N_r =nrepeat,al_type ="NLOPT_LD_MMA",random_target = F,nt = Nt,vartype = 0 )
+
+
+final_try2<-simu_glm(type_ini = 1,source_beta =c(1.2*c(-2.4,-0.5,0.4,0.3,0.65)+c(0.5,0,0,0,0),0.1),ns=Ns,N_r =nrepeat,al_type ="NLOPT_LD_MMA",random_target = F,nt = Nt,vartype = 0 )
+
+
+final_try3<-simu_glm(type_ini = 1,source_beta =1.2*c(-2.4,-0.5,0.4,0.3,0.65,0.1)-c(0.5,0,0,0,0,0),ns=Ns,N_r =nrepeat,al_type ="NLOPT_LD_MMA",random_target = F,nt = Nt,vartype = 0 )
+
+set.seed(123)
+  betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),NN = Nt,m=2)
+  
+final_try4<-simu_glm(type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),ns=Ns,N_r =nrepeat,al_type ="NLOPT_LD_MMA",random_target = F,nt = Nt,vartype = 0 )
+
+
+final_try5<-simu_glm(type_ini = 1,source_beta =c(1.2*c(-2.4,-0.5,0.4,0.3,0.65)+c(0.5,0,0,0,0),0.5),ns=Ns,N_r =nrepeat,al_type ="NLOPT_LD_MMA",random_target = F,nt = Nt,vartype = 0 )
+
+
+final_try6<-simu_glm(type_ini = 1,source_beta =1.2*c(-2.4,-0.5,0.4,0.3,0.65,0.5)-c(0.5,0,0,0,0,0),ns=Ns,N_r =nrepeat,al_type ="NLOPT_LD_MMA",random_target = F,nt = Nt,vartype = 0 )
+
+```
+
+```{r}
+
+  targetbeta=c(-2.4,-0.5,0.4,0.3,0.65,0.1)
+assesment_r1<-assesment(result = final_try1,targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x})
+ 
+   targetbeta=c(-2.4,-0.5,0.4,0.3,0.65,0.5)
+assesment_r1<-assesment(result = final_try4,targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x})
+```
+
+
+
+
+### 24-5-1-random-ref
+
+```{r}
+
+
+set.seed(123)
+  betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),NN = 50000,m=1000)
+final_try1<-simu_glm(type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = T,nt = 50000,vartype = 3 ,nr=1000)
+
+
+final_try2<-simu_glm(type_ini = 1,source_beta =c(1.2*c(-2.4,-0.5,0.4,0.3,0.65)+c(0.5,0,0,0,0),0.1),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = T,nt = 50000,vartype = 3 ,nr=1000)
+
+
+final_try3<-simu_glm(type_ini = 1,source_beta =1.2*c(-2.4,-0.5,0.4,0.3,0.65,0.1)-c(0.5,0,0,0,0,0),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = T,nt = 50000,vartype = 3 ,nr=1000)
+
+set.seed(123)
+  betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),NN = 50000,m=1000)
+  
+final_try4<-simu_glm(type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = T,nt = 50000,vartype = 3 ,nr=1000)
+
+
+final_try5<-simu_glm(type_ini = 1,source_beta =c(1.2*c(-2.4,-0.5,0.4,0.3,0.65)+c(0.5,0,0,0,0),0.5),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = T,nt = 50000,vartype = 3 ,nr=1000)
+
+
+final_try6<-simu_glm(type_ini = 1,source_beta =1.2*c(-2.4,-0.5,0.4,0.3,0.65,0.5)-c(0.5,0,0,0,0,0),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = T,nt = 50000,vartype = 3 ,nr=1000)
+
+```
+
+```{r}
+set.seed(123)
+ betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),NN = 100000,m=1000)
+final_try1<-simu_glm(type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),ns=500,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = T,nt = 100000,vartype = 0 ,nr=1000)
+  targetbeta=c(-2.4,-0.5,0.4,0.3,0.65,0.5)
+assesment_r1<-assesment(result = final_try1,targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x})
+
+```
+
+
+
+
+
+
+
+### 24-11-8-fix-ref
+
+```{r}
+
+
+set.seed(123)  # terrible results?? bad seed??  54??
+  betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),NN =500000,m=1)
+final_try1<-simu_glm(type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 50000,vartype = 0 ,nr=2000,nr_type =0)
+
+
+final_try2<-simu_glm(type_ini = 1,source_beta =c(1.2*c(-2.4,-0.5,0.4,0.3,0.65)+c(0.5,0,0,0,0),0.1),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 500000,vartype = 0 ,nr=2000,nr_type =0)
+
+
+final_try3<-simu_glm(type_ini = 1,source_beta =1.2*c(-2.4,-0.5,0.4,0.3,0.65,0.1)-c(0.5,0,0,0,0,0),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 500000,vartype = 0 ,nr=2000,nr_type =0)
+
+set.seed(111)
+  betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),NN = 500000,m=1)
+  
+final_try4<-simu_glm(type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 500000,vartype = 0 ,nr=2000,nr_type =0)
+
+
+final_try5<-simu_glm(type_ini = 1,source_beta =c(1.2*c(-2.4,-0.5,0.4,0.3,0.65)+c(0.5,0,0,0,0),0.5),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 500000,vartype = 0,nr=2000,nr_type =0)
+
+
+final_try6<-simu_glm(type_ini = 1,source_beta =1.2*c(-2.4,-0.5,0.4,0.3,0.65,0.5)-c(0.5,0,0,0,0,0),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 500000,vartype = 0 ,nr=2000,nr_type =0)
+
+```
+
+```{r}
+  targetbeta=c(-2.4,-0.5,0.4,0.3,0.65,0.1)
+assesment_r1<-assesment(result = final_try3,targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x},include.rownames = F) 
+
+   targetbeta=c(-2.4,-0.5,0.4,0.3,0.65,0.5)
+assesment_r1<-assesment(result = final_try6,targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x},include.rownames = F) 
+ 
+ 
+ 
+ final_try1_n<-simu_glm(type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 50000,vartype = 0 ,nr=2000,nr_type =0)
+ assesment_r1_n<-assesment(result = final_try1_n,targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x}) 
+ 
+ 
+ 
+```
+
+100000 
+```{r}
+set.seed(111)
+ betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),NN = 1000000,m=1)
+ betaxin_total[[1]]
+final_try1<-simu_glm(type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = T,nt = 100000,vartype=0,nr=1000,nr_type =0)
+
+  targetbeta=c(-2.4,-0.5,0.4,0.3,0.65,0.1)
+assesment_r1<-assesment(result = final_try1,targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x})
+ 
+  targetbeta=c(-2.4,-0.5,0.4,0.3,0.65,0.5)
+assesment_r1<-assesment(result = final_try4,targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x}) 
+ 
+
+#   targetbeta=c(-2.4,-0.5,0.4,0.3,0.65,0.5)
+# assesment_r1<-assesment(result = final_try4,targetbeta = targetbeta)
+# print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x})
+ j=3
+zzzta= final_try1$beta_my[,j]
+zzzta_sd=final_try1$asyd_my[,j]
+mean(abs(zzzta-mean(zzzta))<qnorm(0.975)*sd(zzzta))
+mean(abs(zzzta- targetbeta[j] )<qnorm(0.975)*sd(zzzta))
+mean(abs(zzzta-targetbeta[j])<qnorm(0.975)*zzzta_sd)
+mean(abs(zzzta-mean(zzzta))<qnorm(0.975)*zzzta_sd)
+```
+
+50000效果还是不太好
+
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrrrrrrrrr}
+  \hline
+ & targetbeta & V2 & V3 & V4 & V5 & V6 & V7 & V8 & V9 & V10 & V11 & V12 & V13 \\ 
+  \hline
+$\beta_{T,X_0}$ & -2.400 & -0.074 & 0.456 & 0.469 & 0.953 & -0.038 & 0.339 & 0.332 & 0.931 & -0.033 & 0.174 & 0.184 & 0.935 \\ 
+  $\beta_{T,X_1}$ & -0.500 & -0.007 & 0.177 & 0.182 & 0.940 & -0.004 & 0.117 & 0.109 & 0.888 & -0.015 & 0.049 & 0.053 & 0.926 \\ 
+  $\beta_{T,X_2}$ & 0.400 & 0.018 & 0.222 & 0.225 & 0.946 & 0.009 & 0.210 & 0.212 & 0.940 & 0.016 & 0.056 & 0.063 & 0.925 \\ 
+  $\beta_{T,X_3}$ & 0.300 & 0.006 & 0.200 & 0.203 & 0.959 & -0.006 & 0.180 & 0.178 & 0.959 & 0.004 & 0.047 & 0.052 & 0.921 \\ 
+  $\beta_{T,X_4}$ & 0.650 & 0.006 & 0.272 & 0.281 & 0.956 & -0.003 & 0.231 & 0.224 & 0.954 & 0.007 & 0.067 & 0.076 & 0.927 \\ 
+  $\beta_{T,Z^c}$ & 0.500 & 0.012 & 0.098 & 0.099 & 0.947 & 0.010 & 0.097 & 0.098 & 0.943 & 0.012 & 0.098 & 0.099 & 0.947 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+50000但是修改ref改为真分布，明显bias小了不少
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrrrrrrrrr}
+  \hline
+ & targetbeta & V2 & V3 & V4 & V5 & V6 & V7 & V8 & V9 & V10 & V11 & V12 & V13 \\ 
+  \hline
+$\beta_{T,X_0}$ & -2.400 & -0.063 & 0.455 & 0.470 & 0.934 & -0.037 & 0.342 & 0.328 & 0.927 & -0.015 & 0.172 & 0.174 & 0.951 \\ 
+  $\beta_{T,X_1}$ & -0.500 & -0.001 & 0.176 & 0.181 & 0.950 & -0.001 & 0.118 & 0.107 & 0.899 & -0.003 & 0.049 & 0.052 & 0.929 \\ 
+  $\beta_{T,X_2}$ & 0.400 & 0.013 & 0.220 & 0.230 & 0.947 & 0.008 & 0.210 & 0.218 & 0.943 & 0.000 & 0.055 & 0.059 & 0.918 \\ 
+  $\beta_{T,X_3}$ & 0.300 & 0.001 & 0.199 & 0.198 & 0.951 & -0.005 & 0.180 & 0.173 & 0.958 & 0.001 & 0.047 & 0.052 & 0.933 \\ 
+  $\beta_{T,X_4}$ & 0.650 & -0.014 & 0.271 & 0.281 & 0.959 & -0.014 & 0.230 & 0.228 & 0.939 & -0.001 & 0.067 & 0.073 & 0.949 \\ 
+  $\beta_{T,Z^c}$ & 0.500 & 0.010 & 0.098 & 0.098 & 0.951 & 0.008 & 0.096 & 0.098 & 0.949 & 0.010 & 0.098 & 0.098 & 0.951 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+when sample size is not large eg.500, the sd estimator may not be good enough for CR.
+
+Even when nt is large, the psi/betaxin estimator may still exhibit some bias which is comparative to the sd?
+
+#### seed
+```{r}
+for(j in c(100:110)){
+  set.seed(j)
+ betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),NN = 50000,m=1)
+ print(betaxin_total[[1]])
+}
+
+```
+
+222 and 111 not good for s1-s3
+123 for s1 ok (500000ok 1000000 not ok)
+```{r}
+
+set.seed(123)  # terrible results?? bad seed??
+    betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),NN =8000000,m=1)
+final_try1<-simu_glm2(type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 50000,vartype = 0 ,nr=1000,nr_type =0)
+  targetbeta=c(-2.4,-0.5,0.4,0.3,0.65,0.1)
+assesment_r1<-assesment(result = final_try1,targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x})
+ 
+ 
+```
+
+seed 123
+betaxin_total[[1]](1000000)
+          [,1]       [,2]      [,3]      [,4]      [,5]
+[1,] -2.276208 -0.4816265 0.3747129 0.3112035 0.6683965
+
+betaxin_total[[1]](500000)
+          [,1]       [,2]      [,3]      [,4]      [,5]
+[1,] -2.283969 -0.4812025 0.3846899 0.3199604 0.6592805
+
+betaxin_total[[1]](5000000)
+-2.283089 -0.4804445 0.3821813 0.3186826 0.66642
+
+betaxin_total[[1]](8000000)
+ -2.284523 -0.481525 0.3780141 0.3234533 0.6699238
+
+
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrrrrrrrrrrrrr}
+  \hline
+ & targetbeta & V2 & V3 & V4 & V5 & V6 & V7 & V8 & V9 & V10 & V11 & V12 & V13 & V14 & V15 & V16 & V17 \\ 
+  \hline
+$\beta_{T,X_0}$ & -2.400 & -0.012 & 0.266 & 0.256 & 0.957 & -0.008 & 0.218 & 0.194 & 0.936 & -0.008 & 0.214 & 0.191 & 0.935 & 0.007 & 0.076 & 0.079 & 0.947 \\ 
+  $\beta_{T,X_1}$ & -0.500 & -0.007 & 0.103 & 0.104 & 0.958 & -0.004 & 0.077 & 0.072 & 0.935 & -0.005 & 0.079 & 0.075 & 0.914 & -0.001 & 0.014 & 0.014 & 0.951 \\ 
+  $\beta_{T,X_2}$ & 0.400 & 0.010 & 0.134 & 0.130 & 0.956 & 0.007 & 0.128 & 0.121 & 0.956 & 0.007 & 0.127 & 0.120 & 0.956 & -0.006 & 0.014 & 0.014 & 0.881 \\ 
+  $\beta_{T,X_3}$ & 0.300 & -0.002 & 0.121 & 0.122 & 0.947 & -0.005 & 0.114 & 0.113 & 0.951 & -0.004 & 0.116 & 0.115 & 0.948 & -0.007 & 0.013 & 0.013 & 0.942 \\ 
+  $\beta_{T,X_4}$ & 0.650 & -0.001 & 0.157 & 0.161 & 0.950 & -0.004 & 0.143 & 0.139 & 0.948 & -0.003 & 0.142 & 0.138 & 0.949 & 0.002 & 0.013 & 0.013 & 0.933 \\ 
+  $\beta_{T,Z^c}$ & 0.100 & -0.001 & 0.062 & 0.064 & 0.938 & -0.001 & 0.062 & 0.064 & 0.940 & -0.001 & 0.062 & 0.064 & 0.941 & -0.001 & 0.062 & 0.064 & 0.938 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+
+### 24-11-11-fix-ref-50000
+
+begin 54 not ok
+22 0.97
+33 not ok
+
+
+
+#### paralel S1-3
+```{r}
+# Set up the parallel environment (for Windows using makeCluster)
+library(parallel)
+
+# Number of cores
+cl <- makeCluster(10)  # Number of cores to use
+
+# Export external functions and libraries to the cluster
+#clusterExport(cl, c("external_infor", "simu_glm", "set.seed", "betaxin_total", "final_try1", "final_try2"))
+
+# Ensure external functions are sourced on each worker node
+clusterEvalQ(cl, {
+  library(msm)
+  library(nloptr)
+  library(MASS)
+  library(xtable)
+  
+  source("d:/tbzs/tb/groupmeeting/paper1/reference sample/r_file/external_functions.r")
+  source("d:/tbzs/tb/groupmeeting/paper1/reference sample/r_file/other_functions.r")
+  source("d:/tbzs/tb/groupmeeting/paper1/reference sample/r_file/main_simulation.r")
+  source("d:/tbzs/tb/groupmeeting/paper1/reference sample/r_file/main_simulation2.r")
+  source("d:/tbzs/tb/groupmeeting/paper1/reference sample/r_file/assesment.R")
+})
+
+# Function to run simulations in parallel
+run_simulation <- function(i) {
+  # Now the necessary libraries and functions are sourced in the worker environment
+  if (i == 1) {
+    set.seed(54)
+    betaxin_total = external_infor(target_beta = c(-2.4, -0.5, 0.4, 0.3, 0.65, 0.1), NN = 50000, m = 1)
+    set.seed(44)
+    final_try1 <- simu_glm(betaxin_total=betaxin_total,type_ini = 1, source_beta = c(-2.4, -0.5, 0.4, 0.3, 0.65, 0.1), ns = 2000, N_r = 1000,
+                          al_type = "NLOPT_LD_MMA", random_target = F, nt = 50000, vartype = 0, nr = 2000, nr_type = 0)
+    return(final_try1)
+  } 
+  else if(i==2) {
+    set.seed(54)
+    betaxin_total = external_infor(target_beta = c(-2.4, -0.5, 0.4, 0.3, 0.65, 0.1), NN = 50000, m = 1)
+    set.seed(44)
+    final_try2 <- simu_glm(betaxin_total=betaxin_total,type_ini = 1, source_beta = c(1.2 * c(-2.4, -0.5, 0.4, 0.3, 0.65) + c(0.5, 0, 0, 0, 0), 0.1),
+                           ns = 2000, N_r = 1000, al_type = "NLOPT_LD_MMA", random_target = F, nt = 50000, vartype = 0,
+                           nr = 2000, nr_type = 0)
+    return(final_try2)
+  }
+  else if(i==3) {
+    set.seed(54)  # terrible results?? bad seed??  54??
+  betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),NN =50000,m=1)
+  set.seed(55)
+final_try3<-simu_glm(betaxin_total=betaxin_total,type_ini = 1,source_beta =1.2*c(-2.4,-0.5,0.4,0.3,0.65,0.1)-c(0.5,0,0,0,0,0),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 50000,vartype = 0 ,nr=2000,nr_type =0)
+return(final_try3)
+  }
+  else if (i == 4) {
+    set.seed(239)
+  betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),NN = 50000,m=1)
+    set.seed(270)
+    final_try4<-simu_glm(betaxin_total=betaxin_total,type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 50000,vartype = 0 ,nr=2000,nr_type =0)
+
+    return(final_try4)
+  } 
+  else if(i==5) {
+    set.seed(239)
+  betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),NN = 50000,m=1)
+  set.seed(270)
+final_try5<-simu_glm(betaxin_total=betaxin_total,type_ini = 1,source_beta =c(1.2*c(-2.4,-0.5,0.4,0.3,0.65)+c(0.5,0,0,0,0),0.5),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 50000,vartype = 0,nr=2000,nr_type =0)
+    return(final_try5)
+  }
+  else if(i==6) {
+    set.seed(239)
+    betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),NN = 50000,m=1)
+    set.seed(270)
+    final_try6<-simu_glm(betaxin_total=betaxin_total,type_ini = 1,source_beta =1.2*c(-2.4,-0.5,0.4,0.3,0.65,0.5)-c(0.5,0,0,0,0,0),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 50000,vartype = 0 ,nr=2000,nr_type =0)
+  
+  return(final_try6)
+  }
+  
+}
+
+# Run simulations in parallel
+results <- parLapply(cl, 1:6, run_simulation)
+
+# Stop the cluster after execution
+stopCluster(cl)
+
+# Access results
+final_try1 <- results[[1]]
+final_try2 <- results[[2]]
+final_try3 <- results[[3]]
+final_try4 <- results[[4]]
+final_try5 <- results[[5]]
+final_try6 <- results[[6]]
+```
+
+```{r}
+  library(xtable)
+  source("d:/tbzs/tb/groupmeeting/paper1/reference sample/r_file/assesment.R")
+  targetbeta=c(-2.4,-0.5,0.4,0.3,0.65,0.1)
+assesment_r1<-assesment(result = final_try3,targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x},include.rownames = F) 
+ 
+  source("d:/tbzs/tb/groupmeeting/paper1/reference sample/r_file/assesment.R")
+   targetbeta=c(-2.4,-0.5,0.4,0.3,0.65,0.5)
+assesment_r1<-assesment(result = final_try6,targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x},include.rownames = F) 
+```
+
+
+#### paralel S4-6
+
+```{r}
+# Set up the parallel environment (for Windows using makeCluster)
+library(parallel)
+
+# Number of cores
+cl <- makeCluster(12)  # Number of cores to use
+
+# Export external functions and libraries to the cluster
+#clusterExport(cl, c("external_infor", "simu_glm", "set.seed", "betaxin_total", "final_try1", "final_try2"))
+
+# Ensure external functions are sourced on each worker node
+clusterEvalQ(cl, {
+  library(msm)
+  library(nloptr)
+  library(MASS)
+  library(xtable)
+  
+  source("d:/tbzs/tb/groupmeeting/paper1/reference sample/r_file/external_functions.r")
+  source("d:/tbzs/tb/groupmeeting/paper1/reference sample/r_file/other_functions.r")
+  source("d:/tbzs/tb/groupmeeting/paper1/reference sample/r_file/main_simulation.r")
+  source("d:/tbzs/tb/groupmeeting/paper1/reference sample/r_file/main_simulation2.r")
+  source("d:/tbzs/tb/groupmeeting/paper1/reference sample/r_file/assesment.R")
+})
+
+# Function to run simulations in parallel
+run_simulation <- function(i) {
+  # Now the necessary libraries and functions are sourced in the worker environment
+  if (i == 4) {
+    set.seed(239)
+  betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),NN = 50000,m=1)
+    set.seed(270)
+    final_try4<-simu_glm(betaxin_total=betaxin_total,type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 50000,vartype = 0 ,nr=2000,nr_type =0)
+
+    return(final_try4)
+  } 
+  else if(i==5) {
+    set.seed(239)
+  betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),NN = 50000,m=1)
+  set.seed(270)
+final_try5<-simu_glm(betaxin_total=betaxin_total,type_ini = 1,source_beta =c(1.2*c(-2.4,-0.5,0.4,0.3,0.65)+c(0.5,0,0,0,0),0.5),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 50000,vartype = 0,nr=2000,nr_type =0)
+    return(final_try5)
+  }
+  else if(i==6) {
+    set.seed(239)
+    betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),NN = 50000,m=1)
+    set.seed(270)
+    final_try6<-simu_glm(betaxin_total=betaxin_total,type_ini = 1,source_beta =1.2*c(-2.4,-0.5,0.4,0.3,0.65,0.5)-c(0.5,0,0,0,0,0),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 50000,vartype = 0 ,nr=2000,nr_type =0)
+  
+  return(final_try6)
+  }
+  
+}
+
+# Run simulations in parallel
+results <- parLapply(cl, 4:6, run_simulation)
+
+# Stop the cluster after execution
+stopCluster(cl)
+
+# Access results
+final_try4 <- results[[1]]
+final_try5 <- results[[2]]
+final_try6 <- results[[3]]
+```
+
+
+```{r seperate}
+
+
+set.seed(54)  # terrible results?? bad seed??  54??
+  betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),NN =50000,m=1)
+  set.seed(22)
+final_try1<-simu_glm(type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 50000,vartype = 0 ,nr=2000,nr_type =0)
+
+set.seed(54)  # terrible results?? bad seed??  54??
+  betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),NN =50000,m=1)
+  set.seed(22)
+final_try2<-simu_glm(type_ini = 1,source_beta =c(1.2*c(-2.4,-0.5,0.4,0.3,0.65)+c(0.5,0,0,0,0),0.1),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 50000,vartype = 0 ,nr=2000,nr_type =0)
+
+set.seed(54)  # terrible results?? bad seed??  54??
+  betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),NN =50000,m=1)
+  set.seed(22)
+final_try3<-simu_glm(type_ini = 1,source_beta =1.2*c(-2.4,-0.5,0.4,0.3,0.65,0.1)-c(0.5,0,0,0,0,0),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 50000,vartype = 0 ,nr=2000,nr_type =0)
+
+set.seed(239)
+  betaxin_total=external_infor(target_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),NN = 50000,m=1)
+  
+final_try4<-simu_glm(type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.5),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 50000,vartype = 0 ,nr=2000,nr_type =0)
+
+
+final_try5<-simu_glm(type_ini = 1,source_beta =c(1.2*c(-2.4,-0.5,0.4,0.3,0.65)+c(0.5,0,0,0,0),0.5),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 50000,vartype = 0,nr=2000,nr_type =0)
+
+
+final_try6<-simu_glm(type_ini = 1,source_beta =1.2*c(-2.4,-0.5,0.4,0.3,0.65,0.5)-c(0.5,0,0,0,0,0),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 50000,vartype = 0 ,nr=2000,nr_type =0)
+
+```
+
+
+only 239 seed 0.976 not good
+seed 222 0.923
+seed 330 0.931
+seed 270 great
+
+```{r}
+source(file = "r_file/assesment.R")
+  targetbeta=c(-2.4,-0.5,0.4,0.3,0.65,0.1)
+assesment_r1<-assesment(result = final_try3,targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x},include.rownames = F) 
+ 
+source(file = "r_file/assesment.R")
+   targetbeta=c(-2.4,-0.5,0.4,0.3,0.65,0.5)
+assesment_r1<-assesment(result = final_try4,targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x},include.rownames = F) 
+ 
+ assesment_r1<-assesment(result =  results[[2]],targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x},include.rownames = F) 
+
+ 
+ final_try1_n<-simu_glm(type_ini = 1,source_beta =c(-2.4,-0.5,0.4,0.3,0.65,0.1),ns=2000,N_r =1000,al_type ="NLOPT_LD_MMA",random_target = F,nt = 50000,vartype = 0 ,nr=2000,nr_type =0)
+ assesment_r1_n<-assesment(result = final_try1_n,targetbeta = targetbeta)
+ print(xtable(assesment_r1,digits = 3),type="latex",sanitize.text.function = function(x){x}) 
+ 
+ 
+ 
+```
+
+
+# test
+
+```{r}
+
+
+gammah_likelihood<-function(gammah,datax,dataz){
+  return(-sum(log(dtnorm(x=log(dataz),mean=datax%*%gammah[1:5],sd=gammah[6],lower=-Inf,upper=0))))
+  
+}
+
+  #(glm)
+likelihood_beta<-function(beta,datay=Y,datax=cbind(1,X1,X2,X3,X4),datazc=Zcat){
+  
+  tmp=1/(1+exp(-datax%*%beta[1:5]-datazc*beta[6])) 
+  return( -mean(datay*log(tmp)+(1-datay)*log(1-tmp)) )   # negative likelihood
+}
+
+likelihood_beta_score<-function(beta,datay=Y,datax=cbind(1,X1,X2,X3,X4),datazc=Zcat){
+  tmp=exp(-datax%*%beta[1:5]-datazc*beta[6]) 
+  datay*tmp/(1+tmp)-(1-datay)/(1+tmp)
+  return(-t(cbind(datax,datazc))%*%((datay*tmp/(1+tmp))-(1-datay)/(1+tmp))/nrow(datax)) # negative likelihood
+}
+
+
+constr_cml<-function(beta,xprobdata,pe=betaxin_total[[3]][1,],tmpl=betaxin_total[[2]][1,]){
+  pre_pe=c()
+  meany_x<-rep(0,nrow(xprobdata))
+  for(j in 1:nrow(xprobdata)){
+    tmp=exp(-beta[1]-as.numeric(xprobdata[j,1:4]%*%beta[2:5])-c(0:9)*beta[6] )
+    meany_x[j]<- sum(xprobdata[j,6:15]/(1+tmp))
+  }
+  
+for(k in 1:4){
+  index_pe=which(tmpl==k)
+  pre_pe=c(pre_pe,sum(meany_x[index_pe]*xprobdata[index_pe,5])
+           /sum(xprobdata[index_pe,5]))
+  
+}
+  return(c(pre_pe-pe-0.1*abs(pe),-pre_pe+pe-0.1*abs(pe)))
+  
+}
+
+Cderivative<-function(tol_con=1/100000,xprobdata,betahat,pe,tmpl){
+    act_pe=which(abs(constr_cml(betahat,xprobdata,pe,tmpl))<tol_con)
+    if(length(act_pe)==0){
+    return(1)}
+ c_der=Cderivative2(betahat =betahat,xprobdata = xprobdata,tmpl = tmpl )[act_pe,]
+  return(c_der)
+}
+
+Cderivative2<-function(betahat,xprobdata,tmpl){
+
+    meanyd_x<-matrix(0,nrow=nrow(xprobdata),ncol=length(betahat))
+  for(j in 1:nrow(xprobdata)){
+    tmp=exp(-betahat[1]-as.numeric(xprobdata[j,1:4]%*%betahat[2:5])-c(0:9)*betahat[6] )
+    meanyd_x[j,1:5]<- sum(xprobdata[j,6:15]*tmp/(1+tmp)^2)*c(1,xprobdata[j,1:4])
+    meanyd_x[j,6]<- sum(xprobdata[j,6:15]*(0:9)*tmp/(1+tmp)^2)
+  }
+  
+  c_der=matrix(0,nrow=8,ncol=6)
+  for(i in 1:4){
+    
+    # vec=rep(0,6)
+    index=which(tmpl==i)
+    # for(j in index){
+    #   vec=vec+xprobdata[j,5]*c(1,xprobdata[j,1:4],xprobdata[j,6])
+    # }
+    c_der[i,]= t(xprobdata[index,5])%*%meanyd_x[index,]/sum(xprobdata[index,5])
+    
+  }
+  c_der[5:8,]=-c_der[1:4,]
+  return(c_der)
+}
+```
+
+```{r}
+ns=2000
+source_beta=c(-2.4,-0.5,0.4,0.3,0.65,0.1)
+cutX1 <- c(-Inf, qnorm(c(0.05,0.21,0.77),0,1), Inf)
+cutX2 <- c(-Inf, qnorm(c(0.23,0.82),0,1), Inf)
+
+X1 <- rnorm(ns,0,1)
+X2 <- rnorm(ns,0,1)
+X3 <- rpois(ns,0.5)
+X4 <- rpois(ns,0.2)
+
+X1 <- as.numeric(cut(X1, breaks=cutX1, right=T)) - 1
+X2 <- as.numeric(cut(X2, breaks=cutX2, right=T)) - 1
+X3[which(X3 > 2)] <- 2
+X4[which(X4 > 2)] <- 2
+
+Q <- cbind(1,X1,X2,X3,X4)
+theta <- c(-2,0.1,-0.1,0.1,0.1)
+sig_logZ <- 0.6
+u_logZ <- Q%*%theta 
+logZ <- rtnorm(ns, mean=u_logZ, sd=sig_logZ, lower=-Inf, upper=0)#rnorm(1,u_Z,sig_Z)
+Z <- exp(logZ)
+Zcat <- as.numeric(cut(Z, breaks=c(-100,c(1:9)/10,1.1),right=F)) - 1
+
+  alpha <-source_beta[1] ; beta_X <-source_beta[2:5]; beta_Z <-source_beta[6]
+  tmp <- (cbind(1,X1,X2,X3,X4,Zcat)%*%c(alpha,beta_X,beta_Z))
+  Y <- rbinom(ns,size=1,prob=1/(1+exp(-tmp)))
+ 
+
+# mle and gammahat
+  res_mle<-glm(Y~X1+X2+X3+X4+Zcat,family = binomial)
+
+  
+
+gammahat_tot<-nlm(f =function(p)gammah_likelihood(p,cbind(1,X1,X2,X3,X4),Z),p = c(0,0,0,0,0,1),hessian = T)
+gammahat<-gammahat_tot$estimate # gamma estimate
+
+asyv_gamma=solve(gammahat_tot$hessian) #asy var gamma  #asy se gamma
+```
+
+```{r}
+xprob2=matrix(0,nrow=nrow(xprob),ncol=4+1+10)
+xprob2[,1:5]<-xprob[,1:5]
+xprob2[,6]<-0
+for(j in 0:9){
+  
+  # zcgiven X
+  pvec=(pnorm(log((j+1)/10),mean=gammahat[1]+xprob2[,1:4]%*%gammahat[2:5],sd=gammahat[6])-
+    pnorm(log(j/10),mean=gammahat[1]+xprob2[,1:4]%*%gammahat[2:5],sd=gammahat[6]))/pnorm(0,mean=gammahat[1]+xprob2[,1:4]%*%gammahat[2:5],sd=gammahat[6])
+  xprob2[,j+5+1]<-pvec # conditional distribution of z given x 
+
+    #beta[1]+xprob[,1:4]%*%beta[2:5]+beta[6]*j*pvec
+}
+
+al_type="NLOPT_LD_MMA"
+
+type_ini=3
+# initial
+initial_value=0
+if(type_ini==1){
+  initial_value=c(betaxin_total[[1]][1,],0)
+}else if(type_ini==2){
+  initial_value=c(betaxin_total[[1]][1,],0.2)
+}else {
+  initial_value=res_mle$coefficients
+}
+
+# estimate cml
+res_t1 <- nloptr(x0=initial_value,
+                eval_f=function(beta)likelihood_beta(beta,datay=Y,datax=cbind(1,X1,X2,X3,X4),datazc=Zcat),
+                eval_grad_f=function(beta)likelihood_beta_score(beta,datay=Y,datax=cbind(1,X1,X2,X3,X4),datazc=Zcat),
+                eval_g_ineq = function(beta)constr_cml(beta,xprobdata=xprob2,pe=betaxin_total[[3]][1,],tmpl = betaxin_total[[2]][1,]),
+                eval_jac_g_ineq = function(beta)Cderivative2(betahat=beta,xprobdata =xprob2,tmpl = betaxin_total[[2]][1,] ),
+                opts = list("algorithm"=al_type)
+                )
+
+```
+
+```{r}
+res_my<-rootSolve::multiroot(f=function(beta)est_f(beta,xprobdata = xprob2,betaxin=betaxin_total[[1]][1,],betaz=res_mle$coefficients[6]),start = c(betaxin_total[[1]][1,]))
+
+```
+
+```{r}
+fisher_ma2<-fisher_info(betahat =res_mle$coefficients,datax = cbind(1,X1,X2,X3,X4),datazcat = Zcat)
+agamma=A_gamma(c(res_my$root,res_mle$coefficients[6]),xprobdata = xprob2,gammah = gammahat)
+
+#ax
+ax=rootSolve::gradient(function(beta)est_f(beta,xprobdata = xprob2,betaxin=betaxin_total[[1]][1,],betaz=res_mle$coefficients[6]),x = res_my$root)
+
+az=rootSolve::gradient(function(betaz)est_f(beta=res_my$root,xprobdata = xprob2,betaxin=betaxin_total[[1]][1,],betaz=betaz),x = res_mle$coefficients[6])
+
+sqrt( diag( solve(ax)%*%(az%*%t(az)*solve(fisher_ma2)[6,6]/ns +agamma%*%asyv_gamma%*%t(agamma))%*% t(solve(ax) ) )   )
+```
+
+```{r}
+vh<-var_h(res_my$root,xprobdata = xprob2,betaxin =betaxin_total[[1]][1,],betaz =res_mle$coefficients[6]  )
+axin=rootSolve::gradient(function(betaxin)est_f(beta=res_my$root,xprobdata = xprob2,betaxin,res_mle$coefficients[6]),x = betaxin_total[[1]][1,])
+sqrt(diag(solve(axin)%*%vh%*%solve(axin)/50000))
+```
+
+sqrt(diag(matrix(betaxin_total[[4]][1,],nrow=5)))
+ 0.03547927 0.01754873 0.02287079 0.02608944 0.02869925
+ 
+```{r}
+# constr_cml(res_t1$solution,xprob2)
+# constr_cml(res_mle$coefficients,xprob2)
+# res_t1$solution-res_mle$coefficients
+constr_cml(final_try$result$betacml,xprob2,pe=betaxin_total[[3]][5,],tmpl =betaxin_total[[2]][5,] )
+```
+
+```{r}
+
+
+like_der<-rep(0,6)
+for(jk in 1:6){
+  dtb=rep(0,6)
+  dtb[jk]<-0.0001
+ like_der[jk]<- (likelihood_beta(res_t1$solution+dtb)-likelihood_beta(res_t1$solution))/0.0001
+}
+like_der
+likelihood_beta_score(res_t1$solution)
+  
+  
+
+```
+
+```{r}
+
+cder_direct<-matrix(nrow=8,ncol=6)
+for(jk in 1:6){
+  dtb=rep(0,6)
+  dtb[jk]<-0.0001
+ cder_direct[,jk]<- (constr_cml(res_t1$solution+dtb,xprobdata=xprob2,pe=betaxin_total[[3]][1,])-constr_cml(res_t1$solution,xprobdata=xprob2,pe=betaxin_total[[3]][1,]) )/0.0001
+  
+  
+}
+cder_direct-Cderivative2(res_t1$solution,xprob2,tmpl = betaxin_total[[2]][1,])
+```
+
+```{r}
+fisher_info<-function(betahat,datax,datazcat){
+  dataxz=cbind(datax,datazcat)
+  tmp=exp(-dataxz%*%betahat)
+  tmp=tmp/(1+tmp)^2
+  # broadcast?
+  #cov_inf=t(tmp*dataxz)%*%dataxz/(nrow(dataxz))
+  return(tmp)
+  
+}
+
+
+```
+
+```{r}
+
+#pe=betaxin_total[[3]][1,],
+Cderivative<-function(tol_con=1/100000,xprobdata,betahat,pe,tmpl){
+  act_pe=c(2,3)
+    if(length(act_pe)==0){
+    return(1)}
+ c_der=Cderivative2(betahat =betahat,xprobdata = xprobdata,tmpl = tmpl )[act_pe,]
+  return(c_der)
+}
+
+cder<-Cderivative(betahat =res_t1$solution,xprobdata = xprob2,tmpl =betaxin_total[[2]][1,])
+if(length(cder)==1){
+  umat<-diag(rep(1,6))
+  #actnn=actnn+1
+}else{umat<-Null(t(cder))}
+
+
+
+fisher_ma<-fisher_info(betahat =res_t1$solution,datax = cbind(1,X1,X2,X3,X4),datazcat = Zcat)
+vmat=umat%*%solve(t(umat)%*%fisher_ma%*%umat)%*%t(umat)
+middle_I<-Middle_I(datay = Y,betahat =res_t1$solution,datax =cbind(1,X1,X2,X3,X4),datazcat = Zcat )
+  
+asy_cml=vmat%*%middle_I%*%vmat/ns
+```
+
+# test trycatch
+
+```{r}
+test_log<-function(aaaa){
+  ss=0
+  for(j in 1:3){
+     b=tryCatch({list(state=1,result=log(aaaa))},error=function(e){return(list(state=0,result=aaaa,jj=j))})
+  if(b$state==0){
+    return(b)
+  }
+     ss=ss+j
+  }
+ 
+  return(ss)
+}
+
+test_log("2")
+```
+
+```{r}
+
+xprob=as.matrix(cbind(expand.grid(0:3,0:2,0:2,0:2),1,1,1,1))
+xprob<-xprob[order(xprob[,1],xprob[,2],xprob[,3],xprob[,4]),]
+ref_sam_freq<-table(ref_sam%*%c(27,9,3,1)+1)/1000
+
+ref_ind<-as.numeric(row.names(ref_sam_freq))
+xprob[,5]<-0
+xprob[ref_ind,5]<-ref_sam_freq
+
+```
